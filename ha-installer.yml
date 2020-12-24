@@ -1,0 +1,61 @@
+---
+  - name: test
+    hosts: testdev
+    become: yes
+    tasks: 
+      - name: Update apt-get repo and cache
+        apt: update_cache=yes force_apt_get=yes cache_valid_time=3600
+      - name: Upgrade all apt packages
+        apt: upgrade=dist force_apt_get=yes
+      - name: install prerequisits
+        apt:  
+          name: ['software-properties-common', 'apparmor-utils', 'apt-transport-https', 'avahi-daemon', 'ca-certificates', 'curl', 'dbus', 'jq', 'network-manager', 'socat'] 
+          state: present
+      - name: disable modemmanager
+        command: systemctl disable ModemManager
+      - name: Stop modemmanager
+        command: systemctl stop ModemManager
+#      - name: get.docker.com
+#        shell: curl -fsSL get.docker.com | sh
+      - name: Install Expect
+        apt:
+          name: expect
+          state: present
+      - name: download homeassistant installer.sh
+        get_url:
+          #url: https://raw.githubusercontent.com/home-assistant/supervised-installer/master/installer.sh
+          url: https://raw.githubusercontent.com/basklabbers2/homeassistant/main/ha-installer.sh
+          dest: /tmp/ha-installer.sh
+      - name: run homeassistant installer sh
+        shell: /tmp/ha-install.sh | bash -s >> hainstallerlog.txt
+#        shell:  |
+#          curl -sL https://raw.githubusercontent.com/home-assistant/supervised-installer/master/installer.sh | yes | bash -s >> somelog.txt
+#          expect "Do you want to proceed with overwriting the /etc/network/interfaces file? [N/y] "
+#          send  "Y" \r
+        #register: swap_exists
+        #ignore_errors: true
+#        - name: Run expect to wait for a successful PXE boot via out-of-band CIMC
+#        shell: |
+#          set timeout 300
+#          spawn ssh admin@{{ cimc_host }}
+      
+#          expect "password:"
+#          send "{{ cimc_password }}\n"
+      
+#          expect "\n{{ cimc_name }}"
+#          send "connect host\n"
+      
+#          expect "pxeboot.n12"
+#          send "\n"
+      
+#          exit 0
+#        args:
+#          executable: /usr/bin/expect
+      - name: remove /tmp/ha-installer.sh
+        remove: /tmp/ha-installer.sh
+      - name: Remove useless packages from the cache
+        apt:
+        autoclean: yes
+      - name: Remove dependencies that are no longer required
+        apt:
+        autoremove: yes
