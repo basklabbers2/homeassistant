@@ -103,14 +103,14 @@ fi
 
 warn "Changes are needed to the /etc/network/interfaces file"
 info "If you have modified the network on the host manualy, those can now be overwritten"
-#info "If you do not overwrite this now you need to manually adjust it later"
-#info "Do you want to proceed with overwriting the /etc/network/interfaces file? [N/y] "
-#read answer < /dev/tty
+info "If you do not overwrite this now you need to manually adjust it later"
+info "Do you want to proceed with overwriting the /etc/network/interfaces file? [N/y] "
+read answer < /dev/tty
 
-#if [[ "$answer" =~ "y" ]] || [[ "$answer" =~ "Y" ]]; then
+if [[ "$answer" =~ "y" ]] || [[ "$answer" =~ "Y" ]]; then
     info "Replacing /etc/network/interfaces"
     curl -sL "${URL_INTERFACES}" > "${FILE_INTERFACES}";
-#fi
+fi
 
 info "Restarting NetworkManager"
 systemctl restart "${SERVICE_NM}"
